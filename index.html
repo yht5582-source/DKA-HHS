@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>DKA／HHS 處置導航</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDF1F0; --surface:#FFFFFF; --surface-2:#F5F8F7; --ink:#14212A; --muted:#55666D; --line:#D2DBDA;
+  --accent:#0B6E69; --accent-ink:#FFFFFF; --accent-soft:#DCEEEC;
+  --ok:#2A7549; --ok-soft:#E0F0E6; --warn:#9A5700; --warn-soft:#FAEBD3; --crit:#B42318; --crit-soft:#FBE2DE;
+  --strip:#12202A; --strip-ink:#E6EEF0; --strip-muted:#93A7AF; --strip-line:#2B3D47; --strip-accent:#43C4B8;
+  --s1:#0B6E69; --s2:#7A4DB3;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-label:"IBM Plex Sans Condensed","Noto Sans TC","Arial Narrow",sans-serif;
+  --f-num:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0B1114; --surface:#131C20; --surface-2:#182328; --ink:#E2EAEC; --muted:#93A4AA; --line:#26353B;
+    --accent:#3CBDB2; --accent-ink:#06201E; --accent-soft:#12332F;
+    --ok:#5CC48E; --ok-soft:#12301F; --warn:#F0AA45; --warn-soft:#352409; --crit:#F2685F; --crit-soft:#3A1512;
+    --strip:#070D10; --strip-ink:#E2EAEC; --strip-muted:#8397A0; --strip-line:#223139; --strip-accent:#43C4B8;
+    --s1:#3CBDB2; --s2:#B08CE6;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0B1114; --surface:#131C20; --surface-2:#182328; --ink:#E2EAEC; --muted:#93A4AA; --line:#26353B;
+  --accent:#3CBDB2; --accent-ink:#06201E; --accent-soft:#12332F;
+  --ok:#5CC48E; --ok-soft:#12301F; --warn:#F0AA45; --warn-soft:#352409; --crit:#F2685F; --crit-soft:#3A1512;
+  --strip:#070D10; --strip-ink:#E2EAEC; --strip-muted:#8397A0; --strip-line:#223139; --strip-accent:#43C4B8;
+  --s1:#3CBDB2; --s2:#B08CE6;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+h1,h2,h3{margin:0;text-wrap:balance;line-height:1.3}
+p{margin:0}
+a{color:var(--accent)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:16px}
+.label{font-family:var(--f-label);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+
+.strip{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--strip);color:var(--strip-ink);border-bottom:1px solid var(--strip-line)}
+.top{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;justify-content:space-between;padding-block:10px 8px}
+.brand h1{font-family:var(--f-label);font-size:20px;font-weight:700}
+.brand p{font-size:12px;color:var(--strip-muted)}
+.dx{display:flex;gap:6px;flex-wrap:wrap}
+.dxchip{border:1px solid var(--strip-line);border-radius:999px;padding:2px 10px;font-size:13px}
+.dxchip b{font-family:var(--f-num)}
+.dxchip.crit{border-color:#F2685F;color:#FFB4AE}.dxchip.warn{border-color:#F0AA45;color:#FFD9A0}.dxchip.ok{border-color:#5CC48E;color:#B6EBCD}
+.beds-scroll{overflow-x:auto;padding-bottom:10px;color-scheme:dark}
+.beds{display:flex;gap:6px;width:max-content;min-width:100%}
+.bedbtn{display:grid;justify-items:center;gap:2px;min-width:56px;padding:4px 6px 5px;border-radius:8px;border:1px solid var(--strip-line);background:transparent;color:var(--strip-ink);cursor:pointer;font-family:var(--f-num);font-weight:700;font-size:15px}
+.bedbtn small{font-family:var(--f-body);font-weight:500;font-size:10.5px;color:var(--strip-muted);white-space:nowrap}
+.bedbtn[aria-current="true"]{background:var(--strip-ink);color:var(--strip);border-color:var(--strip-ink)}
+.bedbtn[aria-current="true"] small{color:var(--strip)}
+.bedbtn.s-crit{border-color:#F2685F}.bedbtn.s-ok{border-color:#5CC48E}.bedbtn.s-warn{border-color:#F0AA45}
+
+main{padding-block:18px 48px;display:grid;gap:20px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:20px;align-items:start}
+@media (max-width:1000px){.layout{grid-template-columns:1fr}}
+.col{display:grid;gap:18px;min-width:0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:12px;min-width:0}
+.sec{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.sec h2{font-size:18px;font-weight:700}
+.sec span{font-size:12px;color:var(--muted)}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 12px;cursor:pointer;font-weight:500;font-size:14px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.small{padding:4px 10px;font-size:13px}
+.btn.danger{border-color:var(--crit);color:var(--crit)}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent);cursor:pointer;font-size:13.5px;text-decoration:underline;text-underline-offset:3px}
+.toast{font-size:13px;color:var(--ok)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}
+.fld{display:grid;gap:3px;min-width:0}
+.fld label{font-size:12.5px;color:var(--muted)}
+.fld input,.fld select{width:100%;border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:6px 9px;font-family:var(--f-num)}
+.fld select{font-family:var(--f-body)}
+.unit{font-size:10.5px;color:var(--muted);font-family:var(--f-num)}
+.flags{display:flex;flex-wrap:wrap;gap:6px 16px}
+.toggle{display:inline-flex;align-items:center;gap:7px;font-size:14px;cursor:pointer}
+.toggle input{width:16px;height:16px;accent-color:var(--accent)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* 診斷 */
+.crit3{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.cbox{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:2px;background:var(--surface-2)}
+.cbox .l{display:flex;justify-content:space-between;gap:6px;font-weight:700}
+.cbox .l span{font-family:var(--f-num)}
+.cbox small{color:var(--muted);font-size:12.5px}
+.cbox.y{background:var(--crit-soft);border-color:transparent}
+.cbox.y .l span{color:var(--crit)}
+.cbox.n .l span{color:var(--ok)}
+.verdict{border-radius:12px;padding:12px 16px;display:grid;gap:4px}
+.verdict.crit{background:var(--crit-soft)}.verdict.warn{background:var(--warn-soft)}.verdict.ok{background:var(--ok-soft)}.verdict.none{background:var(--surface-2);border:1px solid var(--line)}
+.verdict b{font-size:18px}
+.verdict span{font-size:14px}
+
+/* 處置步驟 */
+.steps{display:grid;gap:10px}
+.step{display:grid;grid-template-columns:34px minmax(0,1fr);gap:12px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--surface)}
+.step .no{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-family:var(--f-num);font-weight:700;background:var(--surface-2);border:1px solid var(--line)}
+.step.stop{border-color:var(--crit);background:color-mix(in srgb,var(--crit-soft) 60%,var(--surface))}
+.step.stop .no{background:var(--crit);border-color:var(--crit);color:var(--surface)}
+.step.go .no{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.step.idle{opacity:.75}
+.step h3{font-size:15.5px;font-weight:700;display:flex;gap:8px;flex-wrap:wrap;align-items:baseline}
+.step h3 .pill{font-size:12px;font-weight:600;border-radius:999px;padding:1px 9px}
+.pill.crit{background:var(--crit);color:var(--surface)}.pill.go{background:var(--accent-soft);color:var(--accent)}.pill.ok{background:var(--ok-soft);color:var(--ok)}.pill.idle{border:1px solid var(--line);color:var(--muted)}
+.step .body{display:grid;gap:6px;font-size:14.5px;min-width:0}
+.step ul{margin:0;padding-left:18px;display:grid;gap:3px}
+.big{font-family:var(--f-num);font-weight:700;font-size:20px}
+.muted{color:var(--muted);font-size:13px}
+.ktab{display:grid;grid-template-columns:auto 1fr;border:1px solid var(--line);border-radius:8px;overflow:hidden;font-size:13.5px}
+.ktab div{padding:5px 10px;border-top:1px solid var(--line)}
+.ktab div:nth-child(-n+2){border-top:0}
+.ktab .k{font-family:var(--f-num);white-space:nowrap;background:var(--surface-2)}
+.ktab .on{background:var(--accent-soft);font-weight:600}
+
+/* 追蹤 */
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.chart{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--surface-2)}
+.chart .t{display:flex;justify-content:space-between;font-size:13px}
+.chart .t b{font-family:var(--f-num)}
+.chart svg{display:block;width:100%;height:auto}
+.chart svg text{fill:var(--muted);font-family:var(--f-num)}
+.chart svg .ref{stroke:var(--muted)}
+.chart svg .ln{stroke:var(--s1)}
+.chart svg .pt{fill:var(--s1)}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;font-family:var(--f-num)}
+th{font-family:var(--f-label);font-size:12px;color:var(--muted);font-weight:600;background:var(--surface-2);text-align:right}
+td:first-child,th:first-child{text-align:left}
+tr:last-child td{border-bottom:0}
+td.bad{color:var(--crit);font-weight:700}td.good{color:var(--ok)}
+td .x{background:none;border:0;color:var(--muted);cursor:pointer;font-size:13px}
+.res{display:grid;gap:8px}
+.cl{display:grid;gap:4px;font-size:14.5px}
+.cl div{display:flex;gap:8px;align-items:baseline}
+.mk{font-family:var(--f-num);font-weight:700;width:18px;flex:none}
+.mk.y{color:var(--ok)}.mk.n{color:var(--muted)}
+
+.side{display:grid;gap:16px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 118px)}
+@media (max-width:1000px){.side{position:static}}
+.side h2{font-size:16px;font-weight:700}
+.kv{display:grid;grid-template-columns:1fr auto;gap:5px 10px;font-size:14px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;font-family:var(--f-num);text-align:right}
+.kv dd.bad{color:var(--crit);font-weight:700}
+.kv .sub{grid-column:1/-1;font-size:12px;color:var(--muted);margin-top:-3px}
+textarea.buf{width:100%;height:130px;border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:8px;font-family:var(--f-num);font-size:12.5px}
+.confirm{display:inline-flex;gap:6px;align-items:center;font-size:13px;color:var(--crit);flex-wrap:wrap}
+.demo{font-size:12.5px;background:var(--warn-soft);border-radius:6px;padding:2px 8px}
+footer{border-top:1px solid var(--line);padding-top:16px;display:grid;gap:10px;font-size:13px;color:var(--muted)}
+footer ol{margin:0;padding-left:20px;display:grid;gap:3px}
+.disclaimer{background:var(--warn-soft);color:var(--ink);border-radius:10px;padding:10px 14px;font-size:13.5px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="strip">
+  <div class="wrap top">
+    <div class="brand"><h1>DKA／HHS 處置導航</h1><p>ADA／EASD／JBDS／AACE／DTS 2024 高血糖危象共識</p></div>
+    <div class="dx" id="dxchips"></div>
+  </div>
+  <div class="wrap"><div class="beds-scroll"><div class="beds" id="beds"></div></div></div>
+</header>
+
+<div class="wrap">
+<main>
+  <div class="layout">
+    <div class="col" id="main"></div>
+    <aside class="side" id="side"></aside>
+  </div>
+  <footer>
+    <div class="disclaimer"><b>僅供臨床流程輔助與教學，不取代臨床判斷。</b>胰島素、鉀、碳酸氫鈉與輸液請依院內處方與規範。資料只存在這台裝置的瀏覽器，不會上傳；請只記錄床號。</div>
+    <div>
+      <span class="label">依據</span>
+      <ol>
+        <li>Umpierrez GE, Davis GM, ElSayed NA, et al. Hyperglycemic crises in adults with diabetes: a consensus report. <i>Diabetes Care</i> 2024;47:1257–1275. <a href="https://doi.org/10.2337/dci24-0032">doi:10.2337/dci24-0032</a>（同步刊登於 <i>Diabetologia</i> 2024）</li>
+        <li>Joint British Diabetes Societies for Inpatient Care. The management of diabetic ketoacidosis in adults（治療中變化速率目標）；The management of the hyperosmolar hyperglycaemic state in adults。</li>
+        <li>Kitabchi AE, et al. Hyperglycemic crises in adult patients with diabetes. <i>Diabetes Care</i> 2009;32:1335–1343（低血磷補充）。</li>
+        <li>Katz MA. Hyperglycemia-induced hyponatremia. <i>N Engl J Med</i> 1973;289:843–844；Hillier TA, et al. <i>Am J Med</i> 1999;106:399–403（校正鈉係數）。</li>
+      </ol>
+    </div>
+  </footer>
+</main>
+</div>
+
+<script>
+(function(){
+const KEY='dka-hhs-v1';
+const pad=x=>String(x).padStart(2,'0');
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const n=v=>{if(v===''||v==null)return NaN;const x=parseFloat(v);return isFinite(x)?x:NaN;};
+const f1=(x,d=1)=>isFinite(x)?(+x.toFixed(d)).toString():'—';
+const HR=3600000;
+const hhmm=t=>{const d=new Date(t);return pad(d.getMonth()+1)+'/'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());};
+const localDT=t=>{const d=new Date(t);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());};
+
+const newBed=()=>({wt:'',dm:true,sglt2:false,frail:false,mental:'normal',uket:'',conc:'1',uo:false,cog:false,eat:false,tdd:'',entries:[],demo:false});
+const defS=()=>({beds:Array.from({length:12},(_,i)=>String(i+1)),bed:'1',data:{}});
+let S;
+try{S=Object.assign(defS(),JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){S=defS();}
+if(!Array.isArray(S.beds)||!S.beds.length)S.beds=defS().beds;
+if(!S.beds.includes(S.bed))S.bed=S.beds[0];
+if(!S.data||typeof S.data!=='object')S.data={};
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+const B_=()=>S.data[S.bed]||(S.data[S.bed]=newBed());
+
+const FIELDS=[['glu','血糖','mg/dL'],['ph','pH','venous'],['hco3','HCO₃⁻','mmol/L'],['bhb','β-HB','mmol/L'],['na','Na','mmol/L'],['k','K','mmol/L'],['cl','Cl','mmol/L'],['bun','BUN','mg/dL'],['alb','Albumin','g/dL'],['phos','磷','mg/dL']];
+let DRAFT={};
+
+/* ---------- 計算 ---------- */
+function calc(e){
+  const g=n(e.glu),na=n(e.na),cl=n(e.cl),h=n(e.hco3),bun=n(e.bun),alb=n(e.alb);
+  const ag=na-(cl+h);
+  const agc=isFinite(alb)?ag+2.5*(4-alb):NaN;
+  const eosm=2*na+g/18;
+  const tosm=eosm+bun/2.8;
+  const cna=g>100?na+1.6*(g-100)/100:na;
+  const cna24=g>100?na+2.4*(g-100)/100:na;
+  const dd=isFinite(ag)&&isFinite(h)?(ag-12)/(24-h):NaN;
+  return {ag,agc,eosm,tosm,cna,cna24,dd};
+}
+function diagnose(B){
+  const e=B.entries[0];if(!e)return null;
+  const c=calc(e),g=n(e.glu),ph=n(e.ph),h=n(e.hco3),bhb=n(e.bhb);
+  const uk=B.uket;const ukPos=['2+','3+','4+'].includes(uk);
+  const D=g>=200||B.dm, Dk=isFinite(g)||B.dm;
+  const K=isFinite(bhb)?bhb>=3:ukPos, Kk=isFinite(bhb)||uk!=='';
+  const A=(isFinite(ph)&&ph<7.3)||(isFinite(h)&&h<18), Ak=isFinite(ph)||isFinite(h);
+  const dka=D&&K&&A;
+  const hyperosm=(isFinite(c.eosm)&&c.eosm>300)||(isFinite(c.tosm)&&c.tosm>320);
+  const hhsCore=g>=600&&hyperosm;
+  const noKet=isFinite(bhb)?bhb<3:(uk!==''&&!ukPos);
+  const noAcid=(!isFinite(ph)||ph>=7.3)&&(!isFinite(h)||h>=15)&&(isFinite(ph)||isFinite(h));
+  let type='none';
+  if(dka&&hhsCore)type='mixed';else if(dka)type='dka';else if(hhsCore&&noKet&&noAcid)type='hhs';else if(hhsCore)type='hhs';
+  let sev='';
+  if(dka){
+    const s3=(bhb>6)||(ph<7.0)||(h<10)||B.mental==='coma';
+    const s2=(ph<=7.25)||(h<15)||B.mental==='drowsy';
+    sev=s3?'severe':s2?'moderate':'mild';
+  }
+  const eug=dka&&g<250;
+  return {c,g,ph,h,bhb,D,Dk,K,Kk,A,Ak,dka,hyperosm,hhsCore,noKet,noAcid,type,sev,eug};
+}
+const SEV={mild:'輕度',moderate:'中度',severe:'重度'};
+const TYPE={dka:'DKA',hhs:'HHS',mixed:'DKA 合併 HHS',none:'未達診斷標準'};
+function latest(B){return B.entries[B.entries.length-1];}
+function resolved(B,dx){
+  const L=latest(B);if(!L||!dx)return null;
+  const c=calc(L),g=n(L.glu),ph=n(L.ph),h=n(L.hco3),bhb=n(L.bhb);
+  const out={};
+  if(dx.type==='dka'||dx.type==='mixed'){
+    const acid=(ph>=7.3)||(h>=18);
+    out.dka={items:[[isFinite(bhb)?bhb<0.6:null,`β-HB <0.6 mmol/L（目前 ${f1(bhb)}）`],[acid,`靜脈 pH ≥7.3 或 HCO₃⁻ ≥18（目前 pH ${f1(ph,2)}、HCO₃⁻ ${f1(h)}）`]]};
+    if(!isFinite(bhb))out.dka.items.push([isFinite(c.ag)?c.ag<=12:null,`無法測 β-HB 時：anion gap 正常（目前 ${f1(c.ag)}）`]);
+    out.dka.ok=out.dka.items.every(x=>x[0]===true);
+  }
+  if(dx.type==='hhs'||dx.type==='mixed'){
+    out.hhs={items:[[isFinite(c.eosm)?c.eosm<300:null,`有效滲透壓 <300 mOsm/kg（目前 ${f1(c.eosm,0)}）`],[isFinite(g)?g<250:null,`血糖 <250 mg/dL（目前 ${f1(g,0)}）`],[B.uo,'尿量 >0.5 mL/kg/h'],[B.cog,'意識回到病前狀態']]};
+    out.hhs.ok=out.hhs.items.every(x=>x[0]===true);
+  }
+  out.ok=Object.values(out).filter(v=>v&&v.items).every(v=>v.ok);
+  return out;
+}
+
+/* ---------- 處置 ---------- */
+function plan(B,dx){
+  const L=latest(B),w=n(B.wt),conc=n(B.conc)||1;
+  const k=n(L.k),g=n(L.glu),ph=n(L.ph),phos=n(L.phos);
+  const t0=B.entries[0].t,hrs=(L.t-t0)/HR;
+  const isD=dx.type==='dka'||dx.type==='mixed',isH=dx.type==='hhs';
+  const steps=[];
+  // 1 輸液
+  steps.push({h:'輸液',st:'go',pill:hrs<4?'前 2–4 小時':'維持期',b:`<ul>
+    <li>${hrs<4?`等張生理食鹽水或平衡晶體液 <b class="num">500–1,000 mL/h</b>，持續前 2–4 小時。`:'依血行動力學、輸出入量與校正鈉調整速率。'}</li>
+    ${B.frail?'<li><b>高齡或心、腎衰竭：</b>改用較小量輸液（例如每次 250 mL），並密切評估容積。</li>':''}
+    <li>校正鈉 <b class="num">${f1(calc(L).cna)}</b> mmol/L（係數 1.6；用 2.4 為 ${f1(calc(L).cna24)}）。</li>
+    ${isH?'<li>HHS：0.45% NaCl 只在輸液量足夠、滲透壓仍不下降時使用。</li>':''}</ul>`});
+  // 2 鉀
+  let kst='go',kp='',kb='';
+  if(!isFinite(k)){kst='idle';kp='待 K 值';kb='輸入 K 值後判斷能否開始 insulin。';}
+  else if(k<3.5){kst='stop';kp='暫停 insulin';kb=`<b>K ${k} &lt;3.5：先不要開始 insulin。</b>以約 <b class="num">10 mmol/h</b> 補充 KCl，待 K &gt;3.5 再開始 insulin；每 1–2 小時複查。`;}
+  else if(k<=5){kp='補鉀＋開始 insulin';kb=`K ${k}：開始 insulin，每公升輸液加 <b class="num">20–30 mmol</b> KCl，維持 K 4–5。`;}
+  else{kp='暫不補鉀';kb=`K ${k} &gt;5.0：可開始 insulin，暫不補鉀；insulin 開始後 2 小時複查，K 降到 &lt;5.0 時開始補充。`;}
+  steps.push({h:'鉀（決定 insulin 能否開始）',st:kst,pill:kp,b:`<div>${kb}</div><div class="ktab">${[['K <3.5','暫停 insulin，KCl 約 10 mmol/h'],['K 3.5–5.0','每公升輸液加 KCl 20–30 mmol'],['K >5.0','不補鉀，2 小時後複查']].map(([a,b],i)=>{const on=isFinite(k)&&((i===0&&k<3.5)||(i===1&&k>=3.5&&k<=5)||(i===2&&k>5));return `<div class="k ${on?'on':''}">${a}</div><div class="${on?'on':''}">${b}</div>`;}).join('')}</div>`});
+  // 3 insulin
+  const hold=isFinite(k)&&k<3.5;
+  let rate=isD?0.1:0.05,why=isD?(dx.type==='mixed'?'DKA 合併 HHS 依 DKA 處理':'DKA 固定速率'):'HHS 固定速率';
+  if(isD&&g<250&&!dx.eug){rate=0.05;why='血糖已 <250 mg/dL，減量並加 dextrose';}
+  const uh=isFinite(w)?rate*w:NaN;
+  steps.push({h:'Insulin',st:hold?'stop':'go',pill:hold?'暫停（K <3.5）':`${rate} U/kg/h`,b:`
+    <div><span class="big">${isFinite(uh)?f1(uh)+' U/h':'—'}</span>　${isFinite(uh)?`= ${f1(uh/conc)} mL/h（${conc} U/mL）`:'輸入體重後計算'}　<span class="muted">${why}</span></div>
+    <ul>
+    ${isD?`<li>重度 DKA：固定速率 IV insulin 0.1 U/kg/h（可先給 0.1 U/kg bolus，依院內規範）。</li>
+    <li>${dx.sev==='severe'?'本例為重度，使用 IV insulin。':'輕中度、無併發症的 DKA：也可在密切照護下，每 1–2 小時皮下注射速效 insulin analog。'}</li>`:''}
+    ${isH?`<li>HHS：固定速率 0.05 U/kg/h。無明顯酮症時，JBDS 建議先只給輸液，血糖不再下降時才開始 insulin。</li>`:''}
+    <li>可在 IV insulin 期間同時給基礎型 insulin <b class="num">0.15–0.3 U/kg</b>${isFinite(w)?`（${f1(0.15*w,0)}–${f1(0.3*w,0)} U）`:''}，或延續原本的基礎劑量，減少轉換時的反彈高血糖。</li>
+    <li>血糖每 1–2 小時測一次；電解質、磷、肌酸酐、β-HB、靜脈 pH 每 4 小時一次。</li></ul>`});
+  // 4 dextrose
+  let dst='idle',dp='尚未需要',db='';
+  if(isD){
+    if(dx.eug){dst='go';dp='一開始就加';db='<b>血糖正常型 DKA</b>（入院血糖 &lt;250 mg/dL，常見於 SGLT2 抑制劑）：一開始就同時給 5–10% dextrose 與 insulin。';}
+    else if(g<250){dst='go';dp='現在加';db=`血糖 ${g} &lt;250 mg/dL：輸液加入 <b>5–10% dextrose</b>，insulin 減為 0.05 U/kg/h，繼續輸注直到酮酸中毒緩解；血糖維持約 200 mg/dL。`;}
+    else db=`血糖降到 &lt;250 mg/dL 時，加入 5–10% dextrose，insulin 減為 0.05 U/kg/h（目前 ${f1(g,0)}）。`;
+  }else if(isH){
+    if(g<=300){dst='go';dp='考慮加';db=`血糖 ${g}：可加入 5% dextrose，避免下降過快（依院內規範，常在 250–300 mg/dL 之間開始）。`;}
+    else db=`血糖接近 250–300 mg/dL 時加入 dextrose（目前 ${f1(g,0)}）。`;
+  }
+  steps.push({h:'Dextrose',st:dst,pill:dp,b:db||'—'});
+  // 5 其他
+  const extra=[];
+  if(ph<7.0)extra.push(`<b>pH ${ph} &lt;7.0：</b>考慮碳酸氫鈉 100 mmol（8.4%）加入 400 mL 注射用水，約 2 小時輸注；pH 仍 &lt;7.0 時可重複。`);
+  else extra.push('pH ≥7.0：不建議給碳酸氫鈉。');
+  if(isFinite(phos)&&phos<1.0)extra.push(`<b>磷 ${phos} mg/dL：</b>嚴重低血磷，特別是有肌肉無力、心或呼吸功能受損時，考慮補充。`);
+  else extra.push('磷：不建議常規補充；嚴重低血磷且有肌肉無力、心或呼吸功能受損時才補充。');
+  if(B.sglt2)extra.push('SGLT2 抑制劑：立即停用；酮症可能在血糖正常後仍持續，需以 β-HB 追蹤。');
+  steps.push({h:'碳酸氫鈉、磷與誘因',st:ph<7.0?'stop':'idle',pill:ph<7.0?'pH <7.0':'',b:`<ul>${extra.map(x=>`<li>${x}</li>`).join('')}<li>找出並處理誘因：感染、停用 insulin、心肌梗塞、胰臟炎、藥物。</li></ul>`});
+  return steps;
+}
+
+/* ---------- 速率 ---------- */
+function rates(B,dx){
+  const E=B.entries,out=[];
+  for(let i=0;i<E.length;i++){
+    const e=E[i],c=calc(e),r={e,c};
+    if(i>0){const p=E[i-1],pc=calc(p),dh=(e.t-p.t)/HR;
+      if(dh>0){
+        r.dg=(n(e.glu)-n(p.glu))/dh;r.db=(n(e.bhb)-n(p.bhb))/dh;r.dh=(n(e.hco3)-n(p.hco3))/dh;r.do=(c.eosm-pc.eosm)/dh;
+      }}
+    const first=E.find(x=>e.t-x.t<=24*HR&&isFinite(n(x.na)));
+    if(first&&first!==e)r.dna24=n(e.na)-n(first.na);
+    out.push(r);
+  }
+  return out;
+}
+function flagRates(r,dx){
+  const isH=dx&&dx.type==='hhs',isD=dx&&(dx.type==='dka'||dx.type==='mixed');
+  const f={};
+  if(isFinite(r.db)&&isD)f.db=r.db<=-0.5?'good':'bad';
+  if(isFinite(r.dh)&&isD)f.dh=r.dh>=3?'good':'bad';
+  if(isFinite(r.dg)){if(isH||dx&&dx.type==='mixed')f.dg=r.dg<-120?'bad':'good';}
+  if(isFinite(r.do)&&(isH||dx&&dx.type==='mixed'))f.do=r.do<-8?'bad':'good';
+  if(isFinite(r.dna24)&&r.dna24<-10)f.dna='bad';
+  return f;
+}
+
+/* ---------- 圖 ---------- */
+function mini(B,key,label,unit,lines,dp){
+  const pts=B.entries.map(e=>({t:e.t,v:key==='eosm'?calc(e).eosm:n(e[key])})).filter(p=>isFinite(p.v));
+  const last=pts.length?pts[pts.length-1].v:NaN;
+  const W=240,H=90,L=30,R=8,T=8,Bm=18;
+  let svg='';
+  if(pts.length){
+    const vs=pts.map(p=>p.v).concat(lines.map(l=>l.v));let lo=Math.min(...vs),hi=Math.max(...vs);if(hi===lo){hi+=1;lo-=1;}const padv=(hi-lo)*.1;lo-=padv;hi+=padv;
+    const t0=pts[0].t,t1=Math.max(pts[pts.length-1].t,t0+HR);
+    const x=t=>L+(W-L-R)*(t-t0)/(t1-t0),y=v=>T+(H-T-Bm)*(1-(v-lo)/(hi-lo));
+    svg+=lines.map(l=>`<line x1="${L}" x2="${W-R}" y1="${y(l.v)}" y2="${y(l.v)}" class="ref" stroke-dasharray="3 3" stroke-width="1"/><text x="${W-R}" y="${y(l.v)-3}" text-anchor="end" font-size="9">${l.t}</text>`).join('');
+    svg+=`<text x="${L-4}" y="${y(hi-padv)+3}" text-anchor="end" font-size="9">${f1(hi-padv,dp)}</text><text x="${L-4}" y="${y(lo+padv)+3}" text-anchor="end" font-size="9">${f1(lo+padv,dp)}</text>`;
+    svg+=`<text x="${L}" y="${H-4}" font-size="9">0 h</text><text x="${W-R}" y="${H-4}" text-anchor="end" font-size="9">${f1((t1-t0)/HR)} h</text>`;
+    svg+=`<polyline class="ln" fill="none" stroke-width="2" points="${pts.map(p=>x(p.t)+','+y(p.v)).join(' ')}"/>`;
+    svg+=pts.map((p,i)=>`<circle cx="${x(p.t)}" cy="${y(p.v)}" r="${i===pts.length-1?3.5:2.5}" class="pt"/>`).join('');
+  }else svg=`<text x="${W/2}" y="${H/2}" text-anchor="middle" font-size="11">尚無資料</text>`;
+  return `<div class="chart"><div class="t"><span>${label}</span><b>${isFinite(last)?f1(last,dp)+' '+unit:'—'}</b></div><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${label}趨勢">${svg}</svg></div>`;
+}
+
+/* ---------- 渲染 ---------- */
+function renderBeds(){
+  $('#beds').innerHTML=S.beds.map(b=>{
+    const B=S.data[b];let cls='',lab='—';
+    if(B&&B.entries.length){const dx=diagnose(B),rs=resolved(B,dx);
+      if(dx.type==='none'){lab='未達標準';}
+      else if(rs&&rs.ok){cls='s-ok';lab='已緩解';}
+      else{const k=n(latest(B).k);cls=isFinite(k)&&k<3.5?'s-crit':'s-warn';lab=TYPE[dx.type].replace('DKA 合併 HHS','DKA+HHS')+(isFinite(k)&&k<3.5?' K↓':'');}}
+    return `<button type="button" class="bedbtn ${cls}" data-bed="${esc(b)}" aria-current="${b===S.bed}">${esc(b)}<small>${lab}</small></button>`;
+  }).join('');
+}
+function renderMain(){
+  const B=B_(),dx=diagnose(B);
+  const L=latest(B);
+  if(!Object.keys(DRAFT).length&&L)FIELDS.forEach(([k])=>{if(!['glu','ph','hco3','bhb','k'].includes(k))DRAFT[k]=L[k]??'';});
+  let h=`<section class="panel"><div class="sec"><h2>病人資料</h2>${B.demo?'<span class="demo">示範病例，非真實病人</span>':''}</div>
+    <div class="grid"><div class="fld"><label for="p-wt">體重 <span class="unit">kg</span></label><input id="p-wt" data-p="wt" inputmode="decimal" value="${esc(B.wt)}"></div>
+    <div class="fld"><label for="p-mental">意識</label><select id="p-mental" data-p="mental">${[['normal','清醒'],['drowsy','嗜睡'],['coma','木僵或昏迷']].map(([v,l])=>`<option value="${v}" ${B.mental===v?'selected':''}>${l}</option>`).join('')}</select></div>
+    <div class="fld"><label for="p-uket">尿酮（無 β-HB 時）</label><select id="p-uket" data-p="uket">${['','陰性','1+','2+','3+','4+'].map(v=>`<option value="${v}" ${B.uket===v?'selected':''}>${v||'未測'}</option>`).join('')}</select></div>
+    <div class="fld"><label for="p-conc">Insulin 濃度 <span class="unit">U/mL</span></label><input id="p-conc" data-p="conc" inputmode="decimal" value="${esc(B.conc)}"></div></div>
+    <div class="flags">${[['dm','已知糖尿病'],['sglt2','使用 SGLT2 抑制劑'],['frail','高齡或心、腎衰竭']].map(([k,l])=>`<label class="toggle"><input type="checkbox" data-pc="${k}" ${B[k]?'checked':''}>${l}</label>`).join('')}</div></section>`;
+
+  h+=`<section class="panel"><div class="sec"><h2>新增檢驗值</h2><span>第一筆用於診斷；之後每筆用於調整處置與計算變化速率</span></div>
+    <div class="grid"><div class="fld" style="grid-column:span 2"><label for="d-t">時間</label><input id="d-t" type="datetime-local" data-d="t" value="${esc(DRAFT.t||localDT(Date.now()))}"></div>
+    ${FIELDS.map(([k,l,u])=>`<div class="fld"><label for="d-${k}">${l} <span class="unit">${u}</span></label><input id="d-${k}" data-d="${k}" inputmode="decimal" value="${esc(DRAFT[k]??'')}"></div>`).join('')}</div>
+    <div class="row"><button type="button" class="btn primary" data-act="add">加入這筆檢驗</button><span class="muted">Na、Cl、BUN、白蛋白、磷會帶入上一筆的值，有新結果再修改</span>${!B.entries.length?'<span style="flex:1"></span><button type="button" class="linkbtn" data-act="demo">載入示範病例</button>':''}</div></section>`;
+
+  if(!dx){$('#main').innerHTML=h+`<section class="panel"><p class="muted">加入第一筆檢驗值後，會顯示診斷、嚴重度與處置步驟。</p></section>`;return;}
+  const c=dx.c;
+  const box=(y,known,t,sub)=>`<div class="cbox ${known?(y?'y':'n'):''}"><div class="l">${t}<span>${known?(y?'符合':'不符合'):'待資料'}</span></div><small>${sub}</small></div>`;
+  const vcls=dx.type==='none'?'none':dx.sev==='severe'||dx.type!=='dka'?'crit':'warn';
+  h+=`<section class="panel"><div class="sec"><h2>診斷（第一筆 ${hhmm(B.entries[0].t)}）</h2><span>2024 共識</span></div>
+    <div class="verdict ${vcls}"><b>${TYPE[dx.type]}${dx.sev?'・'+SEV[dx.sev]:''}${dx.eug?'・血糖正常型':''}</b>
+    <span>${dx.type==='dka'?({mild:'輕度：pH >7.25、HCO₃⁻ 15–18，意識清醒，可在一般病房或觀察單位',moderate:'中度：pH 7.00–7.25 或 HCO₃⁻ 10–<15，可在中重度照護單位',severe:'重度：pH <7.00、HCO₃⁻ <10、β-HB >6 或木僵昏迷，應入加護病房'}[dx.sev]):dx.type==='mixed'?'同時符合 DKA 與 HHS：依 DKA 處理（insulin 0.1 U/kg/h），並注意滲透壓下降速度':dx.type==='hhs'?'控制血糖與滲透壓的下降速度，避免腦水腫':'目前資料不符合 DKA 或 HHS 標準；請確認數值或補齊資料'}</span></div>
+    <span class="label">DKA</span>
+    <div class="crit3">${box(dx.D,dx.Dk,'D 糖尿病',`血糖 ≥200 mg/dL 或已知糖尿病（${f1(dx.g,0)}）`)}${box(dx.K,dx.Kk,'K 酮症',`β-HB ≥3.0 mmol/L 或尿酮 ≥2+（${isFinite(dx.bhb)?f1(dx.bhb):B.uket||'—'}）`)}${box(dx.A,dx.Ak,'A 酸中毒',`pH <7.3 或 HCO₃⁻ <18（${f1(dx.ph,2)}／${f1(dx.h)}）`)}</div>
+    <span class="label">HHS</span>
+    <div class="crit3">${box(dx.g>=600,isFinite(dx.g),'血糖 ≥600',`${f1(dx.g,0)} mg/dL`)}${box(dx.hyperosm,isFinite(c.eosm),'高滲透壓',`有效 >300 或總滲透壓 >320（${f1(c.eosm,0)}／${f1(c.tosm,0)}）`)}${box(dx.noKet&&dx.noAcid,true,'無明顯酮症與酸中毒',`β-HB <3.0、pH ≥7.3、HCO₃⁻ ≥15`)}</div></section>`;
+
+  if(dx.type!=='none'){
+    const st=plan(B,dx);
+    h+=`<section class="panel"><div class="sec"><h2>目前處置（依最新一筆 ${hhmm(L.t)}）</h2><span>距第一筆 ${f1((L.t-B.entries[0].t)/HR)} 小時</span></div><div class="steps">${st.map((s,i)=>`<div class="step ${s.st}"><span class="no">${i+1}</span><div class="body"><h3>${s.h}${s.pill?`<span class="pill ${s.st==='stop'?'crit':s.st}">${s.pill}</span>`:''}</h3>${s.b}</div></div>`).join('')}</div></section>`;
+  }
+
+  const R=rates(B,dx);
+  const isH=dx.type==='hhs'||dx.type==='mixed';
+  h+=`<section class="panel"><div class="sec"><h2>追蹤與變化速率</h2><span>${dx.type==='hhs'?'HHS：血糖下降 ≤90–120 mg/dL/h、有效滲透壓下降 3–8 mOsm/kg/h、24 小時內 Na 下降 ≤10':'DKA（JBDS 目標）：β-HB 每小時降 ≥0.5、HCO₃⁻ 每小時升 ≥3、K 維持 4–5'}</span></div>
+    <div class="charts">${mini(B,'glu','血糖','mg/dL',[{v:250,t:'250'}],0)}${isH?mini(B,'eosm','有效滲透壓','mOsm/kg',[{v:300,t:'300'}],0):mini(B,'bhb','β-HB','mmol/L',[{v:0.6,t:'0.6'}],1)}${mini(B,'hco3','HCO₃⁻','mmol/L',[{v:18,t:'18'}],0)}${mini(B,'k','K','mmol/L',[{v:3.5,t:'3.5'},{v:5,t:'5.0'}],1)}</div>
+    <div class="tbl-wrap"><table><thead><tr><th>時間</th><th>血糖</th><th>β-HB</th><th>pH</th><th>HCO₃⁻</th><th>AG</th><th>K</th><th>校正 Na</th><th>有效滲透壓</th><th>Δ血糖/h</th><th>Δβ-HB/h</th><th>ΔHCO₃⁻/h</th><th>Δ滲透壓/h</th><th></th></tr></thead><tbody>
+    ${R.map((r,i)=>{const e=r.e,c=r.c,fl=flagRates(r,dx);const kk=n(e.k);return `<tr><td>${hhmm(e.t)}</td><td>${f1(n(e.glu),0)}</td><td>${f1(n(e.bhb))}</td><td>${f1(n(e.ph),2)}</td><td>${f1(n(e.hco3))}</td><td>${f1(c.ag)}</td><td class="${isFinite(kk)&&(kk<3.5||kk>5.5)?'bad':''}">${f1(kk)}</td><td class="${fl.dna||''}">${f1(c.cna)}</td><td>${f1(c.eosm,0)}</td><td class="${fl.dg||''}">${f1(r.dg,0)}</td><td class="${fl.db||''}">${f1(r.db,2)}</td><td class="${fl.dh||''}">${f1(r.dh,1)}</td><td class="${fl.do||''}">${f1(r.do,1)}</td><td><button type="button" class="x" data-act="del:${i}" aria-label="刪除這筆">✕</button></td></tr>`;}).join('')}
+    </tbody></table></div>
+    ${(()=>{const last=R[R.length-1];if(!last||R.length<2)return '';const fl=flagRates(last,dx);const msg=[];
+      if(fl.db==='bad')msg.push('β-HB 下降不到 0.5 mmol/L/h：確認 insulin 輸注是否正常，可將 insulin 增加 1 U/h（JBDS）。');
+      if(fl.dh==='bad'&&!isFinite(last.db))msg.push('HCO₃⁻ 上升不到 3 mmol/L/h：確認 insulin 輸注，可考慮增加 insulin 1 U/h（JBDS）。');
+      if(fl.dg==='bad')msg.push('血糖下降超過 120 mg/dL/h：過快，減慢 insulin 或提早加 dextrose。');
+      if(fl.do==='bad')msg.push('有效滲透壓下降超過 8 mOsm/kg/h：過快，有腦水腫風險。');
+      if(fl.dna==='bad')msg.push('24 小時內 Na 下降超過 10 mmol/L：過快。');
+      return msg.length?`<div class="verdict crit"><span>${msg.join('<br>')}</span></div>`:'';})()}
+  </section>`;
+
+  const rs=resolved(B,dx);
+  if(rs&&dx.type!=='none'){
+    const cl=items=>`<div class="cl">${items.map(([ok,t])=>`<div><span class="mk ${ok?'y':'n'}">${ok===true?'✓':'–'}</span><span>${t}</span></div>`).join('')}</div>`;
+    const w=n(B.wt),tdd=n(B.tdd);
+    h+=`<section class="panel"><div class="sec"><h2>緩解與轉換皮下 insulin</h2><span>2024 共識緩解條件</span></div>
+      ${rs.dka?`<span class="label">DKA 緩解</span>${cl(rs.dka.items)}`:''}
+      ${rs.hhs?`<span class="label">HHS 緩解</span>${cl(rs.hhs.items)}<div class="flags"><label class="toggle"><input type="checkbox" data-pc="uo" ${B.uo?'checked':''}>尿量 >0.5 mL/kg/h</label><label class="toggle"><input type="checkbox" data-pc="cog" ${B.cog?'checked':''}>意識回到病前狀態</label></div>`:''}
+      <div class="verdict ${rs.ok?'ok':'none'}"><b>${rs.ok?'已達緩解條件':'尚未緩解'}</b><span>${rs.ok?'可準備轉換為皮下 insulin。':'持續 IV insulin 與輸液，直到上列條件都符合。'}</span></div>
+      ${rs.ok?`<div class="flags"><label class="toggle"><input type="checkbox" data-pc="eat" ${B.eat?'checked':''}>可以進食</label></div>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:4px;font-size:14.5px">
+        <li>停止 IV insulin <b>至少 1–2 小時前</b>先給基礎型 insulin。</li>
+        <li>採基礎加餐前（basal-bolus）方案。每日總量可依住院前劑量、住院中的 insulin 需求，或體重估算 0.3–0.6 U/kg/天${isFinite(w)?`：<b class="num">${f1(0.3*w,0)}–${f1(0.6*w,0)} U/天</b>（約一半為基礎型）`:''}。</li>
+        <li><div class="fld" style="max-width:220px"><label for="p-tdd">住院前每日 insulin 總量 <span class="unit">U</span></label><input id="p-tdd" data-p="tdd" inputmode="decimal" value="${esc(B.tdd)}"></div>${isFinite(tdd)?`<span class="muted">基礎型約 ${f1(tdd/2,0)} U、餐前各約 ${f1(tdd/6,0)} U（依血糖調整）</span>`:''}</li>
+        ${B.eat?'':'<li>尚未進食時，可先繼續 IV insulin 並給 dextrose，或只給基礎型 insulin 並每 4–6 小時以速效 insulin 校正。</li>'}
+        ${B.sglt2?'<li>SGLT2 抑制劑：住院期間不要恢復，出院前與團隊討論是否重新使用。</li>':''}
+      </ul>`:''}
+    </section>`;
+  }
+  $('#main').innerHTML=h;
+}
+function summary(B){
+  const dx=diagnose(B);if(!dx)return '';
+  const L=latest(B),c=calc(L),rs=resolved(B,dx),w=n(B.wt);
+  const lines=[`【床 ${S.bed}】${TYPE[dx.type]}${dx.sev?'・'+SEV[dx.sev]:''}${dx.eug?'・血糖正常型':''}`,
+    `最新 ${hhmm(L.t)}：血糖 ${f1(n(L.glu),0)}、pH ${f1(n(L.ph),2)}、HCO₃⁻ ${f1(n(L.hco3))}、β-HB ${f1(n(L.bhb))}、K ${f1(n(L.k))}、AG ${f1(c.ag)}、校正 Na ${f1(c.cna)}、有效滲透壓 ${f1(c.eosm,0)}`];
+  if(dx.type!=='none'){plan(B,dx).forEach(s=>lines.push(`${s.h}：${s.pill||''} ${s.b.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').replace(/&lt;/g,'<').replace(/&gt;/g,'>').trim().slice(0,120)}`));}
+  if(rs)lines.push('緩解：'+(rs.ok?'已達條件':'尚未'));
+  return lines.join('\n');
+}
+function renderSide(){
+  const B=B_(),L=latest(B),dx=diagnose(B);
+  let h=`<section class="panel"><h2>計算（最新一筆）</h2>`;
+  if(L){const c=calc(L);
+    h+=`<dl class="kv"><dt>Anion gap</dt><dd class="${c.ag>12?'bad':''}">${f1(c.ag)}</dd><span class="sub">Na −（Cl + HCO₃⁻），正常約 10–12（依檢驗室）</span>
+      ${isFinite(c.agc)?`<dt>白蛋白校正 AG</dt><dd class="${c.agc>12?'bad':''}">${f1(c.agc)}</dd><span class="sub">AG + 2.5 ×（4 − 白蛋白）</span>`:''}
+      <dt>Delta ratio</dt><dd>${f1(c.dd,2)}</dd><span class="sub">(AG − 12) ÷ (24 − HCO₃⁻)；&lt;1 合併非 AG 酸中毒，&gt;2 合併代謝性鹼中毒</span>
+      <dt>有效滲透壓</dt><dd class="${c.eosm>300?'bad':''}">${f1(c.eosm,0)}</dd><span class="sub">2 × Na + 血糖 ÷ 18</span>
+      <dt>總滲透壓</dt><dd class="${c.tosm>320?'bad':''}">${f1(c.tosm,0)}</dd><span class="sub">有效滲透壓 + BUN ÷ 2.8</span>
+      <dt>校正 Na</dt><dd>${f1(c.cna)}</dd><span class="sub">Na + 1.6 ×（血糖 − 100）÷ 100；係數 2.4 為 ${f1(c.cna24)}</span></dl>`;
+  }else h+='<p class="muted">加入檢驗值後計算 anion gap、滲透壓與校正鈉。</p>';
+  h+=`</section>`;
+  if(dx){h+=`<section class="panel"><h2>摘要</h2><div class="row"><button type="button" class="btn small" data-act="copy">複製摘要</button><span class="toast" id="toast" aria-live="polite"></span></div><textarea class="buf" id="buf" hidden readonly aria-label="摘要"></textarea></section>`;}
+  h+=`<section class="panel"><div class="row"><button type="button" class="btn small danger" data-act="clearAsk">新病人（清除此床）</button><span class="confirm" id="clear-confirm" hidden>確定清除床 ${esc(S.bed)}？<button type="button" class="btn small danger" data-act="clearYes">清除</button><button type="button" class="btn small" data-act="clearNo">取消</button></span></div>
+    <details><summary style="cursor:pointer;font-weight:700">床號設定</summary><div class="fld" style="margin-top:8px"><label for="set-beds">床號（逗號或空白分隔）</label><input id="set-beds" value="${esc(S.beds.join(', '))}"></div><button type="button" class="btn small primary" style="margin-top:8px" data-act="saveBeds">儲存</button></details></section>`;
+  $('#side').innerHTML=h;
+}
+function renderDx(){
+  const B=S.data[S.bed],dx=B&&diagnose(B);
+  if(!dx){$('#dxchips').innerHTML='';return;}
+  const L=latest(B),k=n(L.k),rs=resolved(B,dx);
+  $('#dxchips').innerHTML=`<span class="dxchip ${dx.type==='none'?'':'crit'}">${TYPE[dx.type]}${dx.sev?' '+SEV[dx.sev]:''}</span>${isFinite(k)?`<span class="dxchip ${k<3.5?'crit':k>5?'warn':'ok'}">K <b>${k}</b></span>`:''}<span class="dxchip">血糖 <b>${f1(n(L.glu),0)}</b></span>${rs?`<span class="dxchip ${rs.ok?'ok':''}">${rs.ok?'已緩解':'未緩解'}</span>`:''}`;
+}
+function render(){
+  const a=document.activeElement;let fk=null,sel=null;
+  if(a&&a.id){fk='#'+CSS.escape(a.id);try{sel=[a.selectionStart,a.selectionEnd];}catch(e){}}
+  renderBeds();renderDx();renderMain();renderSide();
+  const el=fk&&$(fk);if(el){el.focus({preventScroll:true});if(sel&&sel[0]!=null)try{el.setSelectionRange(sel[0],sel[1]);}catch(e){}}
+}
+
+/* ---------- 事件 ---------- */
+function loadDemo(B){
+  const t=Date.now()-6*HR;
+  Object.assign(B,newBed(),{wt:'60',demo:true});
+  B.entries=[
+    {t:t,glu:'520',ph:'7.08',hco3:'8',bhb:'6.8',na:'132',k:'5.4',cl:'96',bun:'32',alb:'4.0',phos:''},
+    {t:t+2*HR,glu:'420',ph:'7.15',hco3:'10',bhb:'5.6',na:'133',k:'4.6',cl:'99',bun:'30',alb:'4.0',phos:''},
+    {t:t+4*HR,glu:'320',ph:'7.22',hco3:'13',bhb:'4.3',na:'135',k:'4.1',cl:'102',bun:'27',alb:'3.9',phos:''},
+    {t:t+6*HR,glu:'235',ph:'7.27',hco3:'15',bhb:'3.1',na:'136',k:'3.9',cl:'104',bun:'24',alb:'3.9',phos:''}];
+}
+document.addEventListener('click',e=>{
+  const bb=e.target.closest('[data-bed]');if(bb){S.bed=bb.dataset.bed;DRAFT={};save();render();window.scrollTo({top:0});return;}
+  const a=e.target.closest('[data-act]');if(!a)return;
+  const B=B_(),[act,arg]=a.dataset.act.split(':');
+  if(act==='add'){
+    const t=DRAFT.t?new Date(DRAFT.t).getTime():Date.now();
+    const en={t};FIELDS.forEach(([k])=>en[k]=(DRAFT[k]??'').toString().trim());
+    if(!FIELDS.some(([k])=>en[k]!=='')){return;}
+    B.entries.push(en);B.entries.sort((x,y)=>x.t-y.t);B.demo=B.demo&&true;DRAFT={};
+  }
+  else if(act==='del'){B.entries.splice(+arg,1);}
+  else if(act==='demo'){loadDemo(B);DRAFT={};}
+  else if(act==='copy'){const text=summary(B),toast=$('#toast'),buf=$('#buf');
+    const ok=()=>{toast.textContent='已複製';setTimeout(()=>{const t=$('#toast');if(t)t.textContent='';},2000);};
+    const fail=()=>{buf.value=text;buf.hidden=false;buf.select();toast.textContent='無法自動複製，請手動複製下方文字';};
+    try{navigator.clipboard.writeText(text).then(ok,fail);}catch(err){fail();}return;}
+  else if(act==='clearAsk'){$('#clear-confirm').hidden=false;a.hidden=true;return;}
+  else if(act==='clearNo'){$('#clear-confirm').hidden=true;$('[data-act="clearAsk"]').hidden=false;return;}
+  else if(act==='clearYes'){S.data[S.bed]=newBed();DRAFT={};}
+  else if(act==='saveBeds'){const b=$('#set-beds').value.split(/[,，\s]+/).map(v=>v.trim()).filter(Boolean);if(b.length){S.beds=[...new Set(b)];if(!S.beds.includes(S.bed))S.bed=S.beds[0];}}
+  else return;
+  save();render();
+});
+document.addEventListener('input',e=>{
+  const t=e.target,B=B_();
+  if(t.matches('[data-d]')){DRAFT[t.dataset.d]=t.value;return;}
+  if(t.matches('input[data-p]')){B[t.dataset.p]=t.value;save();render();}
+});
+document.addEventListener('change',e=>{
+  const t=e.target,B=B_();
+  if(t.matches('select[data-p]')){B[t.dataset.p]=t.value;}
+  else if(t.matches('[data-pc]')){B[t.dataset.pc]=t.checked;}
+  else return;
+  save();render();
+});
+render();
+})();
+</script>
+</body>
+</html>
