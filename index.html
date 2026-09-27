@@ -79,6 +79,7 @@ main{padding-block:18px 48px;display:grid;gap:20px}
 .btn.danger{border-color:var(--crit);color:var(--crit)}
 .linkbtn{background:none;border:0;padding:0;color:var(--accent);cursor:pointer;font-size:13.5px;text-decoration:underline;text-underline-offset:3px}
 .toast{font-size:13px;color:var(--ok)}
+.flash{font-size:14px;color:var(--ok);background:var(--ok-soft);border-radius:8px;padding:5px 10px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}
 .fld{display:grid;gap:3px;min-width:0}
 .fld label{font-size:12.5px;color:var(--muted)}
@@ -220,7 +221,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 const B_=()=>S.data[S.bed]||(S.data[S.bed]=newBed());
 
 const FIELDS=[['glu','血糖','mg/dL'],['ph','pH','venous'],['hco3','HCO₃⁻','mmol/L'],['bhb','β-HB','mmol/L'],['na','Na','mmol/L'],['k','K','mmol/L'],['cl','Cl','mmol/L'],['bun','BUN','mg/dL'],['alb','Albumin','g/dL'],['phos','磷','mg/dL']];
-let DRAFT={};
+let DRAFT={},FLASH='';
 
 /* ---------- 計算 ---------- */
 function calc(e){
@@ -402,8 +403,8 @@ function renderMain(){
 
   h+=`<section class="panel"><div class="sec"><h2>新增檢驗值</h2><span>第一筆用於診斷；之後每筆用於調整處置與計算變化速率</span></div>
     <div class="grid"><div class="fld" style="grid-column:span 2"><label for="d-t">時間</label><input id="d-t" type="datetime-local" data-d="t" value="${esc(DRAFT.t||localDT(Date.now()))}"></div>
-    ${FIELDS.map(([k,l,u])=>`<div class="fld"><label for="d-${k}">${l} <span class="unit">${u}</span></label><input id="d-${k}" data-d="${k}" inputmode="decimal" value="${esc(DRAFT[k]??'')}"></div>`).join('')}</div>
-    <div class="row"><button type="button" class="btn primary" data-act="add">加入這筆檢驗</button><span class="muted">Na、Cl、BUN、白蛋白、磷會帶入上一筆的值，有新結果再修改</span>${!B.entries.length?'<span style="flex:1"></span><button type="button" class="linkbtn" data-act="demo">載入示範病例</button>':''}</div></section>`;
+    ${FIELDS.map(([k,l,u])=>`<div class="fld"><label for="d-${k}">${l} <span class="unit">${u}</span></label><input id="d-${k}" data-d="${k}" inputmode="decimal" value="${esc(DRAFT[k]??'')}" placeholder="${L&&L[k]!==''&&L[k]!=null?'上次 '+esc(L[k]):''}"></div>`).join('')}</div>
+    <div class="row"><button type="button" class="btn primary" data-act="add">加入這筆檢驗</button>${FLASH?`<span class="flash" role="status">${FLASH}</span>`:`<span class="muted">加入後欄位會清空，準備輸入下一筆；灰字為上一筆的值。Na、Cl、BUN、白蛋白、磷會自動帶入上一筆，有新結果再修改</span>`}${!B.entries.length?'<span style="flex:1"></span><button type="button" class="linkbtn" data-act="demo">載入示範病例</button>':''}</div></section>`;
 
   if(!dx){$('#main').innerHTML=h+`<section class="panel"><p class="muted">加入第一筆檢驗值後，會顯示診斷、嚴重度與處置步驟。</p></section>`;return;}
   const c=dx.c;
@@ -424,7 +425,7 @@ function renderMain(){
 
   const R=rates(B,dx);
   const isH=dx.type==='hhs'||dx.type==='mixed';
-  h+=`<section class="panel"><div class="sec"><h2>追蹤與變化速率</h2><span>${dx.type==='hhs'?'HHS：血糖下降 ≤90–120 mg/dL/h、有效滲透壓下降 3–8 mOsm/kg/h、24 小時內 Na 下降 ≤10':'DKA（JBDS 目標）：β-HB 每小時降 ≥0.5、HCO₃⁻ 每小時升 ≥3、K 維持 4–5'}</span></div>
+  h+=`<section class="panel" id="track" style="scroll-margin-top:130px"><div class="sec"><h2>追蹤與變化速率</h2><span>${dx.type==='hhs'?'HHS：血糖下降 ≤90–120 mg/dL/h、有效滲透壓下降 3–8 mOsm/kg/h、24 小時內 Na 下降 ≤10':'DKA（JBDS 目標）：β-HB 每小時降 ≥0.5、HCO₃⁻ 每小時升 ≥3、K 維持 4–5'}</span></div>
     <div class="charts">${mini(B,'glu','血糖','mg/dL',[{v:250,t:'250'}],0)}${isH?mini(B,'eosm','有效滲透壓','mOsm/kg',[{v:300,t:'300'}],0):mini(B,'bhb','β-HB','mmol/L',[{v:0.6,t:'0.6'}],1)}${mini(B,'hco3','HCO₃⁻','mmol/L',[{v:18,t:'18'}],0)}${mini(B,'k','K','mmol/L',[{v:3.5,t:'3.5'},{v:5,t:'5.0'}],1)}</div>
     <div class="tbl-wrap"><table><thead><tr><th>時間</th><th>血糖</th><th>β-HB</th><th>pH</th><th>HCO₃⁻</th><th>AG</th><th>K</th><th>校正 Na</th><th>有效滲透壓</th><th>Δ血糖/h</th><th>Δβ-HB/h</th><th>ΔHCO₃⁻/h</th><th>Δ滲透壓/h</th><th></th></tr></thead><tbody>
     ${R.map((r,i)=>{const e=r.e,c=r.c,fl=flagRates(r,dx);const kk=n(e.k);return `<tr><td>${hhmm(e.t)}</td><td>${f1(n(e.glu),0)}</td><td>${f1(n(e.bhb))}</td><td>${f1(n(e.ph),2)}</td><td>${f1(n(e.hco3))}</td><td>${f1(c.ag)}</td><td class="${isFinite(kk)&&(kk<3.5||kk>5.5)?'bad':''}">${f1(kk)}</td><td class="${fl.dna||''}">${f1(c.cna)}</td><td>${f1(c.eosm,0)}</td><td class="${fl.dg||''}">${f1(r.dg,0)}</td><td class="${fl.db||''}">${f1(r.db,2)}</td><td class="${fl.dh||''}">${f1(r.dh,1)}</td><td class="${fl.do||''}">${f1(r.do,1)}</td><td><button type="button" class="x" data-act="del:${i}" aria-label="刪除這筆">✕</button></td></tr>`;}).join('')}
@@ -508,31 +509,34 @@ function loadDemo(B){
     {t:t+6*HR,glu:'235',ph:'7.27',hco3:'15',bhb:'3.1',na:'136',k:'3.9',cl:'104',bun:'24',alb:'3.9',phos:''}];
 }
 document.addEventListener('click',e=>{
-  const bb=e.target.closest('[data-bed]');if(bb){S.bed=bb.dataset.bed;DRAFT={};save();render();window.scrollTo({top:0});return;}
+  const bb=e.target.closest('[data-bed]');if(bb){S.bed=bb.dataset.bed;DRAFT={};FLASH='';save();render();window.scrollTo({top:0});return;}
   const a=e.target.closest('[data-act]');if(!a)return;
   const B=B_(),[act,arg]=a.dataset.act.split(':');
   if(act==='add'){
     const t=DRAFT.t?new Date(DRAFT.t).getTime():Date.now();
     const en={t};FIELDS.forEach(([k])=>en[k]=(DRAFT[k]??'').toString().trim());
     if(!FIELDS.some(([k])=>en[k]!=='')){return;}
-    B.entries.push(en);B.entries.sort((x,y)=>x.t-y.t);B.demo=B.demo&&true;DRAFT={};
+    B.entries.push(en);B.entries.sort((x,y)=>x.t-y.t);DRAFT={};
+    const shown=[['glu','血糖'],['ph','pH'],['hco3','HCO₃⁻'],['bhb','β-HB'],['k','K']].filter(([k])=>en[k]!=='').map(([k,l])=>l+' '+esc(en[k])).join('、');
+    FLASH=`✓ 已加入 ${hhmm(t)}：${shown||'（未填主要數值）'}。已列入下方「追蹤與變化速率」表格 <button type="button" class="linkbtn" data-act="goTrack">查看</button>`;
   }
-  else if(act==='del'){B.entries.splice(+arg,1);}
-  else if(act==='demo'){loadDemo(B);DRAFT={};}
+  else if(act==='del'){B.entries.splice(+arg,1);FLASH='';}
+  else if(act==='goTrack'){const el=$('#track');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});return;}
+  else if(act==='demo'){loadDemo(B);DRAFT={};FLASH='';}
   else if(act==='copy'){const text=summary(B),toast=$('#toast'),buf=$('#buf');
     const ok=()=>{toast.textContent='已複製';setTimeout(()=>{const t=$('#toast');if(t)t.textContent='';},2000);};
     const fail=()=>{buf.value=text;buf.hidden=false;buf.select();toast.textContent='無法自動複製，請手動複製下方文字';};
     try{navigator.clipboard.writeText(text).then(ok,fail);}catch(err){fail();}return;}
   else if(act==='clearAsk'){$('#clear-confirm').hidden=false;a.hidden=true;return;}
   else if(act==='clearNo'){$('#clear-confirm').hidden=true;$('[data-act="clearAsk"]').hidden=false;return;}
-  else if(act==='clearYes'){S.data[S.bed]=newBed();DRAFT={};}
+  else if(act==='clearYes'){S.data[S.bed]=newBed();DRAFT={};FLASH='';}
   else if(act==='saveBeds'){const b=$('#set-beds').value.split(/[,，\s]+/).map(v=>v.trim()).filter(Boolean);if(b.length){S.beds=[...new Set(b)];if(!S.beds.includes(S.bed))S.bed=S.beds[0];}}
   else return;
   save();render();
 });
 document.addEventListener('input',e=>{
   const t=e.target,B=B_();
-  if(t.matches('[data-d]')){DRAFT[t.dataset.d]=t.value;return;}
+  if(t.matches('[data-d]')){DRAFT[t.dataset.d]=t.value;if(FLASH){FLASH='';const f=$('.flash');if(f)f.outerHTML='<span class="muted">輸入下一筆中…</span>';}return;}
   if(t.matches('input[data-p]')){B[t.dataset.p]=t.value;save();render();}
 });
 document.addEventListener('change',e=>{
