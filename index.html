@@ -296,10 +296,10 @@ function plan(B,dx){
   // 2 鉀
   let kst='go',kp='',kb='';
   if(!isFinite(k)){kst='idle';kp='待 K 值';kb='輸入 K 值後判斷能否開始 insulin。';}
-  else if(k<3.5){kst='stop';kp='暫停 insulin';kb=`<b>K ${k} &lt;3.5：先不要開始 insulin。</b>起始以 <b class="num">10 mmol/h</b> 補充 KCl（2024 共識）；K 很低或持續下降時可提高到 <b class="num">20–30 mmol/h</b>（UpToDate：0.45% NaCl 每公升加 KCl 40–60 mmol），此時需中心靜脈與連續心電圖。待 K &gt;3.5 再開始 insulin；每 1–2 小時複查。`;}
+  else if(k<3.5){kst='stop';kp='暫停 insulin';kb=`<b>K ${k} &lt;3.5：先不要開始 insulin。</b>起始以 <b class="num">10 mmol/h</b> 補充 KCl（2024 共識內文；其 Figure 4 為 10–20 mmol/h）；K 很低或持續下降時可提高到 <b class="num">20–30 mmol/h</b>（UpToDate：0.45% NaCl 每公升加 KCl 40–60 mmol），此時需中心靜脈與連續心電圖。待 K &gt;3.5 再開始 insulin；每 1–2 小時複查。`;}
   else if(k<=5){kp='補鉀＋開始 insulin';kb=`K ${k}：開始 insulin，每公升輸液加 <b class="num">20–30 mmol</b> KCl，維持 K 4–5。`;}
   else{kp='暫不補鉀';kb=`K ${k} &gt;5.0：可開始 insulin，暫不補鉀；insulin 開始後 2 小時複查，K 降到 &lt;5.0 時開始補充。`;}
-  steps.push({h:'鉀（決定 insulin 能否開始）',st:kst,pill:kp,b:`<div>${kb}</div><div class="ktab">${[['K <3.5','暫停 insulin，KCl 起始 10 mmol/h，必要時 20–30 mmol/h（中心靜脈＋ECG）'],['K 3.5–5.0','每公升輸液加 KCl 20–30 mmol'],['K >5.0','不補鉀，2 小時後複查']].map(([a,b],i)=>{const on=isFinite(k)&&((i===0&&k<3.5)||(i===1&&k>=3.5&&k<=5)||(i===2&&k>5));return `<div class="k ${on?'on':''}">${a}</div><div class="${on?'on':''}">${b}</div>`;}).join('')}</div>`});
+  steps.push({h:'鉀（決定 insulin 能否開始）',st:kst,pill:kp,b:`<div>${kb}</div><div class="ktab">${[['K <3.5','暫停 insulin，KCl 起始 10 mmol/h（共識 Figure 4 為 10–20），必要時 20–30 mmol/h（中心靜脈＋ECG）'],['K 3.5–5.0','每公升輸液加 KCl 20–30 mmol'],['K >5.0','不補鉀，2 小時後複查']].map(([a,b],i)=>{const on=isFinite(k)&&((i===0&&k<3.5)||(i===1&&k>=3.5&&k<=5)||(i===2&&k>5));return `<div class="k ${on?'on':''}">${a}</div><div class="${on?'on':''}">${b}</div>`;}).join('')}</div>`});
   // 3 insulin
   const hold=isFinite(k)&&k<3.5;
   let rate=isD?0.1:0.05,why=isD?(dx.type==='mixed'?'DKA 合併 HHS 依 DKA 處理':'DKA 固定速率'):'HHS 固定速率';
